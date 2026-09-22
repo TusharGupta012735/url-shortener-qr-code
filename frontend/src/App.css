@@ -1,18 +1,58 @@
-.page {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+.shell {
+  min-height: 100vh;
 }
 
-.header {
+/* Nav */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: rgba(11, 13, 16, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.nav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0.9rem 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
 }
 
-.header h1 {
-  font-size: 1.75rem;
-  margin: 0;
+.brand {
+  font-weight: 600;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius);
+}
+
+.nav-link:hover {
+  color: var(--text);
+  border-color: transparent;
+}
+
+.nav-link.active {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--border);
 }
 
 .env-badge {
@@ -36,10 +76,54 @@
   border-color: #6b5a1f;
 }
 
-.subtitle {
+/* Page layout */
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* Hero */
+
+.hero {
+  position: relative;
+  padding: 4rem 0 2.5rem;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32rem;
+  height: 20rem;
+  background: radial-gradient(closest-side, rgba(124, 156, 255, 0.16), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-compact {
+  padding: 3rem 0 1.5rem;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.accent-text {
+  color: var(--accent);
+}
+
+.hero-subtitle {
   color: var(--text-dim);
-  margin-top: 0.4rem;
-  margin-bottom: 2rem;
+  font-size: 1.05rem;
+  max-width: 34rem;
+  margin: 0 0 2rem;
 }
 
 .shorten-form {
@@ -52,7 +136,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 0.9rem;
   color: var(--text);
   font-size: 0.95rem;
 }
@@ -68,7 +152,7 @@ button,
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1.1rem;
   font-size: 0.9rem;
   white-space: nowrap;
   text-decoration: none;
@@ -99,9 +183,67 @@ button:not(:disabled):hover,
   margin-top: 1rem;
 }
 
+/* Sections */
+
+.section-title {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin: 0 0 1.1rem;
+}
+
+.features {
+  padding: 1.5rem 0 3rem;
+  border-top: 1px solid var(--border);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 560px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+}
+
+.feature-icon {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.feature-card p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.links-section {
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Link list */
+
 .link-list {
   list-style: none;
-  margin: 2rem 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -157,6 +299,52 @@ button:not(:disabled):hover,
   background: #fff;
   padding: 6px;
 }
+
+/* Analytics - in development */
+
+.in-dev {
+  border-top: 1px solid var(--border);
+  padding: 2rem 0 3rem;
+}
+
+.in-dev-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #facc15;
+  border: 1px solid #6b5a1f;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.in-dev p {
+  color: var(--text-dim);
+  max-width: 34rem;
+  line-height: 1.6;
+}
+
+.roadmap-list {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.roadmap-list li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* Footer */
 
 .footer {
   margin-top: 3rem;
