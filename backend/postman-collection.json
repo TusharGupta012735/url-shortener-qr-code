@@ -1,0 +1,351 @@
+{
+    "info": {
+        "_postman_id": "url-shortener-api-collection",
+        "name": "URL Shortener API",
+        "description": "Complete API collection for URL shortener service with QR code support",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Health & Info",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        },
+                        "description": "Check if API is running and healthy"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "2. URL Shortening",
+            "item": [
+                {
+                    "name": "Generate Short URL (Guest)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.github.com/nodejs/node\",\n  \"guestId\": \"guest-session-{{$timestamp}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        },
+                        "description": "Create a shortened URL for an anonymous guest user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate Short URL (Authenticated User)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.typescript-lang.org\",\n  \"userId\": \"550e8400-e29b-41d4-a716-446655440000\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        },
+                        "description": "Create a shortened URL for an authenticated user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate Short URL (Long URL)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.amazon.com/s?k=laptop&ref_=nav_searchbox&i=computers&bbn=541966&rh=n%3A541966%2Cp_n_condition-type%3A2&dc&ds=v1%3A9d8e7c1b2a3f5g6h7i8j9k0l&fst=as%3Aoff&qid=1677123456&rnid=2941120011&sprefix=laptop%2Caps%2C789&sr=1-1\",\n  \"guestId\": \"guest-long-url-test\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        },
+                        "description": "Test shortening of very long URLs with query parameters"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "3. URL Redirection",
+            "item": [
+                {
+                    "name": "Redirect Short URL",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/ABC123",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "ABC123"
+                            ]
+                        },
+                        "description": "Replace ABC123 with actual shortCode from generate response. This will redirect to the original URL."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Access Non-existent URL",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/INVALID999",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "INVALID999"
+                            ]
+                        },
+                        "description": "Test 404 error when accessing non-existent short URL"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "4. Error Cases",
+            "item": [
+                {
+                    "name": "Error - Missing User/Guest ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        },
+                        "description": "Should return 400 error - either userId or guestId is required"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Error - Empty URL",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"\",\n  \"guestId\": \"guest-123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        },
+                        "description": "Should return error for empty URL"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "5. Test Data Examples",
+            "item": [
+                {
+                    "name": "Example - GitHub",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://github.com\",\n  \"guestId\": \"guest-github\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Example - YouTube",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\n  \"guestId\": \"guest-youtube\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Example - Google Search",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://www.google.com/search?q=typescript+nodejs\",\n  \"guestId\": \"guest-google\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Example - StackOverflow",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"originalUrl\": \"https://stackoverflow.com/questions/tagged/javascript\",\n  \"guestId\": \"guest-stackoverflow\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/shortUrl/generate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "shortUrl",
+                                "generate"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "shortCode",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//Tables
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  urls      Url[]
+
+  @@map("users")
+}
+
+model Guest {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  createdAt    DateTime @default(now())
+
+  urls         Url[]
+
+  @@map("guests")
+}
+model Url {
+  id          String   @id @default(uuid())
+
+  snowflakeId String @unique
+
+  originalUrl String
+  shortCode   String   @unique
+
+  createdAt   DateTime @default(now())
+  clickCount  Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  userId      String?
+  guestId     String?
+
+  user        User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guest       Guest? @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  analytics   Analytics[]
+
+  @@index([shortCode])
+  @@map("urls")
+}
+
+model Analytics {
+  id        String   @id @default(uuid())
+
+  eventId   String   @unique   // idempotency key
+
+  urlId     String
+  url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+
+  occurredAt DateTime
+
+  ip        String?
+  userAgent String?
+  device    String?
+  browser   String?
+  country   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([urlId])
+  @@map("analytics")
+}
