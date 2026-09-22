@@ -1,0 +1,10 @@
+node_modules
+src/generated
+dist
+.env
+.env.*
+*.log
+docs
+README.md
+DOCS.md
+postman-collection.json

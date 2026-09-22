@@ -4,10 +4,11 @@ Guide to test URL generation, redirect behavior, and Kafka-based analytics proce
 
 ## Prerequisites
 
-Run all required services first:
+Run all required services first (from the repo root for the Docker part):
 
 ```bash
-docker compose up -d kafka kafka-ui
+docker compose up -d postgres kafka kafka-ui
+cd backend
 npm run start
 npm run worker
 ```
@@ -57,7 +58,7 @@ After redirect call:
 ## Common failure checks
 
 - Kafka broker not reachable:
-- Ensure `.env` has `KAFKA_BROKER=localhost:9092`
+- Ensure `.env` has `KAFKA_BROKER=localhost:9094` (host-facing listener port; containers use `kafka:9092`)
 - Ensure Docker Kafka container is running
 
 - Redirect works but analytics missing:

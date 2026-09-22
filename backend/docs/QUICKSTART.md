@@ -21,17 +21,22 @@ Set at least:
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/url-shortener?schema=public"
 PORT=3000
-NODE_ENV="DEVELOPMENT"
-KAFKA_BROKER="localhost:9092"
+NODE_ENV="development"
+KAFKA_BROKER="localhost:9094"
 ```
 
-## 3. Start Kafka (Docker)
+## 3. Start Postgres + Kafka (Docker)
+
+`docker-compose.yml` lives at the **repo root**. Run it from there, starting only the infra services (not `api`/`worker`, since you'll run those on the host in the next steps):
 
 ```bash
-docker compose up -d kafka kafka-ui
+cd ..
+docker compose up -d postgres kafka kafka-ui
+cd backend
 ```
 
-- Kafka broker: `localhost:9092`
+- Postgres: `localhost:5432`
+- Kafka broker: `localhost:9094` (host-facing listener; containers use `kafka:9092`)
 - Kafka UI: `http://localhost:8080`
 
 ## 4. Apply database migrations
@@ -49,6 +54,17 @@ Start both in separate terminals:
 npm run start
 npm run worker
 ```
+
+### Alternative: run everything in Docker
+
+Instead of steps 3-5, run the whole stack (Postgres, Kafka, Kafka UI, API, worker) with one command from the repo root:
+
+```bash
+cd ..
+docker compose up --build
+```
+
+The `api` service applies migrations on startup automatically.
 
 ## 6. Quick test
 

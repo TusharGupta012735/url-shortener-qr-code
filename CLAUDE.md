@@ -2,12 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working conventions
+
+- **Never run git commands** (`git add`, `commit`, `push`, `checkout`, `reset`, branch operations, etc.) in this repo. The user manages git themselves — do not stage, commit, or push on their behalf, even if asked to "save" or "finish up" work, unless they explicitly type a git command for you to run.
+- **Always propose a plan before making changes.** For any non-trivial task (new features, refactors, multi-file edits, config/setup changes), lay out the plan first and get confirmation before editing files. Trivial one-line fixes or the user explicitly asking you to "just do it" are exceptions.
+
 ## Repository layout
 
 This is a monorepo-by-folder (not an npm workspace — each side has its own `package.json`, `node_modules`, and lockfile):
 
 - `backend/` — Express + TypeScript API (URL shortening, QR codes, Kafka-based click analytics). Fully implemented.
-- `frontend/` — Vite + React 19 + TypeScript app. Currently just the default Vite scaffold; no product code yet.
+- `frontend/` — Vite + React 19 + TypeScript app. A minimal dark-themed single page for manually exercising the backend (shorten a URL, copy/visit the short link, generate its QR code). No router, no state library, no UI framework — plain `fetch` + React state.
 
 Run backend and frontend commands from inside their respective directories.
 
@@ -28,12 +33,22 @@ npm run start                  # run the API (tsx src/server.ts), connects to Ka
 npm run worker                 # run the analytics Kafka consumer (separate process)
 npx prisma migrate deploy      # apply migrations
 npx prisma generate            # regenerate Prisma client into src/generated/prisma
-docker compose up -d kafka kafka-ui   # start local Kafka (+ UI at localhost:8080)
 ```
 
 There is no real test suite yet (`npm test` is a placeholder that exits 1) and no lint script. `backend/postman-collection.json` and `backend/docs/API_TESTING.md` are the way to exercise endpoints manually.
 
 Both the API and worker processes must be running for redirects to produce analytics/click-count updates.
+
+#### Running via Docker
+
+`docker-compose.yml` lives at the **repo root** (not `backend/`), so it can share the root `.env`. Two ways to use it:
+
+```bash
+docker compose up -d postgres kafka kafka-ui   # infra only - run api/worker on the host as above
+docker compose up --build                      # everything - postgres, kafka, kafka-ui, api, worker
+```
+
+`backend/Dockerfile` builds a single `node:22-alpine` image (no compiled build step — runs `tsx` directly, same as the npm scripts) used by both the `api` and `worker` compose services. The `api` service runs `prisma migrate deploy` before starting. Kafka has two listeners: containers reach it at `kafka:9092`, the host (e.g. `npm run start` outside Docker) at `localhost:9094` — don't collapse these back to one listener, host and container DNS resolve differently inside `docker-compose.yml`.
 
 ### Frontend (`frontend/`)
 
@@ -44,6 +59,8 @@ npm run build       # tsc -b && vite build
 npm run lint        # eslint .
 npm run preview     # preview production build
 ```
+
+`frontend/src/lib/api.ts` wraps the two backend calls (`shortenUrl`, `getQrCode`) and reads `VITE_API_URL`/`VITE_APP_ENV` from `import.meta.env` (typed in `frontend/src/vite-env.d.ts`). `frontend/src/lib/guest.ts` generates and persists a per-browser `guestId` in `localStorage`, since the backend requires a `userId` or `guestId` on every shorten request and there's no auth yet. `App.tsx` holds an in-memory (not persisted) list of links created in the current session.
 
 ## Backend architecture
 
@@ -103,8 +120,22 @@ From the root `.env.example` (copy to root `.env`, not `backend/.env`):
 ```
 DATABASE_URL="postgresql://postgres:password@localhost:5432/url-shortener?schema=public"
 PORT=3000
-NODE_ENV="DEVELOPMENT"
+NODE_ENV="development"
 BASE_URL="http://localhost:3000/shortUrl"
-KAFKA_BROKER=localhost:9092
-# VITE_API_URL="http://localhost:3000"   # frontend, once it needs one
+KAFKA_BROKER=localhost:9094
+
+# Only used by docker-compose to initialize the Postgres container - keep in
+# sync with the credentials embedded in DATABASE_URL above.
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=url-shortener
+
+VITE_APP_ENV=development       # development | preprod | production - shown as a badge in the UI
+VITE_API_URL="http://localhost:3000"   # point at your deployed Render backend for preprod/production
 ```
+
+Inside `docker-compose.yml`, the `api`/`worker` services override `DATABASE_URL` and `KAFKA_BROKER` to point at the `postgres`/`kafka` service names (built from `POSTGRES_*`) rather than using the host-oriented values above verbatim.
+
+`NODE_ENV` must stay lowercase (`development`/`production`) — Vite reads this same root `.env` and rejects other casings, and the backend's own stack-trace check in `errorMiddleware.ts` also compares against the lowercase value.
+
+When deploying, set `VITE_API_URL` (and `VITE_APP_ENV`) as environment variables in the Vercel project settings (frontend) and `BASE_URL`/`DATABASE_URL`/`KAFKA_BROKER`/etc. in the Render service settings (backend) — the committed root `.env` is for local dev only.

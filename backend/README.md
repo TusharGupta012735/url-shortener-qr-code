@@ -17,7 +17,7 @@ TypeScript + Express backend for URL shortening with Snowflake/Base62 short code
 - Express
 - PostgreSQL + Prisma
 - KafkaJS
-- Docker Compose (Kafka + Kafka UI)
+- Docker Compose (Postgres + Kafka + Kafka UI, or the whole backend)
 
 ## Project Structure
 
@@ -37,16 +37,18 @@ backend/
       qr-code/
   prisma/
   docs/
-  docker-compose.yml
+  Dockerfile
   package.json
 ```
+
+`docker-compose.yml` lives at the **repo root**. It orchestrates Postgres, Kafka, Kafka UI, and this backend's `api`/`worker` containers (built from `backend/Dockerfile`).
 
 ## Prerequisites
 
 - Node.js 18+
 - npm
-- PostgreSQL running locally
-- Docker Desktop (for Kafka)
+- PostgreSQL running locally (or via Docker)
+- Docker Desktop (for Kafka, Postgres, or the whole backend)
 
 ## Setup
 
@@ -67,17 +69,19 @@ cp ../.env.example ../.env
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/url-shortener?schema=public"
 PORT=3000
-NODE_ENV="DEVELOPMENT"
-KAFKA_BROKER="localhost:9092"
+NODE_ENV="development"
+KAFKA_BROKER="localhost:9094"
 ```
 
-4. Start Kafka locally via Docker.
+4. Start Postgres and Kafka locally via Docker (run from the repo root).
 
 ```bash
-docker compose up -d kafka kafka-ui
+cd ..
+docker compose up -d postgres kafka kafka-ui
+cd backend
 ```
 
-Kafka UI will be available at `http://localhost:8080`.
+Kafka UI will be available at `http://localhost:8080`. Kafka's host-facing broker is `localhost:9094` (see `KAFKA_BROKER` above); containers talk to it as `kafka:9092`.
 
 5. Run migrations and generate Prisma client.
 
@@ -100,6 +104,16 @@ npm run worker
 
 Run both processes in separate terminals.
 
+### Or: run the whole backend in Docker
+
+From the repo root, instead of running Postgres/Kafka via Docker and the API/worker on the host, run everything in containers:
+
+```bash
+docker compose up --build
+```
+
+This builds `backend/Dockerfile` and starts `postgres`, `kafka`, `kafka-ui`, `api` (runs `prisma migrate deploy` then the server), and `worker`.
+
 ## API Endpoints
 
 - `GET /` health check
@@ -117,8 +131,8 @@ Run both processes in separate terminals.
 ## Troubleshooting
 
 - `Failed to start server` with Kafka error:
-  - Ensure `docker compose ps` shows `kafka` healthy.
-  - Verify `.env` has `KAFKA_BROKER=localhost:9092`.
+  - Ensure `docker compose ps` (from the repo root) shows `kafka` running.
+  - Verify `.env` has `KAFKA_BROKER=localhost:9094` (host-facing listener port; containers use `kafka:9092`).
 - Worker not processing events:
   - Confirm `npm run worker` is running.
   - Check Kafka UI (`http://localhost:8080`) topic `link.visited`.

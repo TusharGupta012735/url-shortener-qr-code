@@ -33,8 +33,8 @@ This file maps all project documentation and when to use each file.
 ## Keep Docs Updated When You Change
 
 - `package.json` scripts (`start`, `worker`, etc.)
-- Docker services (`docker-compose.yml`, Kafka/Postgres additions)
+- Docker services (root `docker-compose.yml`, `backend/Dockerfile`, Kafka/Postgres config)
 - Required env vars (`KAFKA_BROKER`, DB config)
 - Event contracts/topics (`link.visited`)
 
-Last updated: 2026-03-03
+Last updated: 2026-09-22

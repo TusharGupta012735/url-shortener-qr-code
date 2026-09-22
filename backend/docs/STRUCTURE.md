@@ -38,16 +38,20 @@ backend/
     API_TESTING.md
     STRUCTURE.md
     snowflake-base62.md
-  docker-compose.yml             # Kafka + Kafka UI for local development
+  Dockerfile                     # image used by the root docker-compose.yml (api + worker services)
+  .dockerignore
   package.json                   # scripts: start, worker
-  .env.example
   README.md
   DOCS.md
+
+# repo root (see ../../CLAUDE.md)
+docker-compose.yml                # postgres + kafka + kafka-ui + api + worker
+.env.example / .env
 ```
 
 ## Runtime Processes
 
-- API process: `npm run start`
-- Worker process: `npm run worker`
+- API process: `npm run start` (or the `api` service in `docker-compose.yml`)
+- Worker process: `npm run worker` (or the `worker` service in `docker-compose.yml`)
 
 Both should run for full redirect analytics behavior.
